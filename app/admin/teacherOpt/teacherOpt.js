@@ -9,8 +9,20 @@ angular.module('admin.teacherOpt', ['ui.router'])
     .factory('AdminTeacher', function ($http, AdminConstants, Account) {
         var factory = {};
         var teacherList;
+        factory.createTeachers = function (teachers,callback) {
+            $http.post(AdminConstants.URL_TEACHERS, teachers,
+                {
+                    headers: {'x-token': Account.getToken()}
+                }).then(function (res) {
+                callback(null, res.data);
+            }, function (res) {
+                callback(res);
+            });
+        }
         factory.getTeacherList = function (callback) {
-            if (teacherList) {return callback(null, teacherList);}
+            if (teacherList) {
+                return callback(null, teacherList);
+            }
             $http.get(AdminConstants.URL_TEACHERS, {
                 headers: {'x-token': Account.getToken()}
             }).then(function (res) {
@@ -35,18 +47,21 @@ angular.module('admin.teacherOpt', ['ui.router'])
         };
         return factory;
     })
-    .controller('AdminTeacherCtrl', function (Account,$scope, AdminTeacher) {
+    .controller('AdminTeacherCtrl', function (Account, $scope, AdminTeacher) {
         $scope.userName = '';
         $scope.userId = '';
         $scope.password = '';
         $scope.confirmPw = '';
         var flushData = function () {
             AdminTeacher.getTeacherList(function (err, teachers) {
-                if (err) {return Account.showToast('错误',err.data);}
+                if (err) {
+                    return Account.showToast('错误', err.data);
+                }
                 $scope.teachers = teachers;
             });
         };
         flushData();
+        //TODO remove repeated codes
         /* processing array buffers, only required for readAsArrayBuffer */
         function fixdata(data) {
             var o = "", l = 0, w = 10240;
@@ -62,7 +77,7 @@ angular.module('admin.teacherOpt', ['ui.router'])
             var files = e.target.files;
             var i, f;
             if (1 > files.length) {
-                return showAlert('cuowu','请选择一个文件');
+                return showAlert('cuowu', '请选择一个文件');
             }
             f = files[0];
             var reader = new FileReader();
@@ -106,10 +121,10 @@ angular.module('admin.teacherOpt', ['ui.router'])
                     }
                     var res = regex.exec(key);
                     if (!res) {
-                        return showAlert('cuowu','无法处理: ' + key);
+                        return showAlert('cuowu', '无法处理: ' + key);
                     }
                     if (3 !== res.length) {
-                        showAlert('cuowu','格式不对: ' + key);
+                        showAlert('cuowu', '格式不对: ' + key);
                         continue;
                     }
                     var keyOfRow = res[1];
@@ -123,29 +138,45 @@ angular.module('admin.teacherOpt', ['ui.router'])
                 }
                 console.log(sheetArray);
                 console.log(sheetArray[0][1]);
-                $scope.teachers=[];
+                $scope.teachers = [];
                 for (var key in sheetArray[0]) {
                     console.log(key);
                     console.log({
-                        id: sheetArray[0][key]+'',
+                        id: sheetArray[0][key] + '',
                         name: sheetArray[1][key]
                     });
                     $scope.teachers.push({
-                        id: sheetArray[0][key]+'',
+                        id: sheetArray[0][key] + '',
                         name: sheetArray[1][key]
                     });
                 }
                 console.log($scope.teachers);
             });
         }
+
         document.getElementById('xlsx').addEventListener('change', handleFile, false);
 
         $scope.createStd = function () {
-            if ($scope.password != $scope.confirmPw) {return $scope.flag = '密码输入不一致';}
+            if($scope.teachers.length){
+                //TODO invalid API
+                AdminTeacher.createTeachers($scope.teachers, function (err, teacher) {
+                    if (err) {
+                        return Account.showToast('错误', 'Failed to add teacher: ' + err.status + '(' + err.data + ')');
+                    }
+                    $scope.teachers.push(teacher);
+                    Account.showToast('成功', 'Added teacher ' + $scope.userName + ' with uid: ' + $scope.userId);
+                    flushData();
+                });
+            }
+            if ($scope.password != $scope.confirmPw) {
+                return $scope.flag = '密码输入不一致';
+            }
             AdminTeacher.createTeacher($scope.userId, $scope.userName, $scope.password, function (err, teacher) {
-                if (err) {return Account.showToast('错误','Failed to add teacher: ' + err.status + '(' + err.data + ')');}
+                if (err) {
+                    return Account.showToast('错误', 'Failed to add teacher: ' + err.status + '(' + err.data + ')');
+                }
                 $scope.teachers.push(teacher);
-                Account.showToast('成功','Added teacher ' + $scope.userName + ' with uid: ' + $scope.userId);
+                Account.showToast('成功', 'Added teacher ' + $scope.userName + ' with uid: ' + $scope.userId);
                 flushData();
                 $scope.userName = '';
                 $scope.userId = '';
