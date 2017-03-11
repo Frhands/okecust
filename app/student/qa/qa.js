@@ -207,11 +207,27 @@ angular.module('student.qa', [
                                 $scope.questions = res.questionDetails;
                                 $scope.questionNum = $scope.questions.length;
                                 $scope.answer = [];
-                                if (res.answers) {
-                                    $scope.answer=res.answers;
-                                }
+                                //deal with the teacher's answer in questions
+                                if($scope.questions)
+                                    $scope.questions=$scope.questions.map(function (item) {
+                                        console.log('in maping answers',item);
+                                        var alphaArr= [];
+                                        if(typeof(item.answers[0])=='boolean'){
+                                            for(var i = 0 ; i< item.answers.length;i++){
+                                                if(item.answers[i])alphaArr.push(String.fromCharCode("A".charCodeAt(0)+i));
+                                            }
+                                            item.answers=alphaArr;
+                                            return item;
+                                        }
+                                        else return item;
+                                    });
 
-                            else for (var i = 0; i < $scope.questions.length; i++) {
+
+                                //deal with the student answers
+                                if (res.answers) {
+                                    $scope.answer = res.answers;
+                                }
+                                else for (var i = 0; i < $scope.questions.length; i++) {
                                     $scope.answer.push([]);
                                     if ($scope.questions[i].type == 1) ansConst = false;
                                     else ansConst = '';

@@ -4,7 +4,7 @@
       <md-button ng-click="backToClass()">
         <md-icon class="material-icons">home</md-icon>菜单
       </md-button>
-      <md-select ng-model="courseSelected" placeholder="选择班级"> 
+      <md-select ng-model="courseSelected" placeholder="选择班级"  flex="50">
         <md-option ng-repeat="course in courseList" ng-click="switchCourse(course._id)" >{{ course.name }}</md-option>
       </md-select>
       <span h2 flex="noshrink">试卷列表</span>

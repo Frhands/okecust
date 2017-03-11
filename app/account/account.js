@@ -59,8 +59,17 @@ angular.module('account', ['helper', 'angular-md5', 'ngCookies'])
         var hash = self.hash = function (uid, password) {
             return md5.createHash('hash-it-happily-' + uid + '$' + password);
         };
-        self.showAlert = self.showToast;
-
+        self.showAlert =function (title,message) {
+            $mdDialog.show(
+                $mdDialog.alert()
+                    .parent(angular.element(document.querySelector('#popupContainer')))
+                    .clickOutsideToClose(true)
+                    .title(title)
+                    .textContent(message)
+                    .ariaLabel('Alert Dialog Demo')
+                    .ok('明白')
+            );
+        };
         self.login = function (username, password, callback) {
             password = hash(username, password);
             $http
