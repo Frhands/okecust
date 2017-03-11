@@ -144,6 +144,10 @@ angular.module('student.qa', [
         $scope.questionVisible = false;
         $scope.currentPaper = null;
         $scope.currentQuestion = null;
+        $scope.alphabet=function (i) {
+            return String.fromCharCode("A".charCodeAt(0)+i);
+        };
+
         $scope.backToList = function () {
             $scope.paperVisible = false;
             $scope.currentPaper = null;
@@ -208,11 +212,11 @@ angular.module('student.qa', [
                                 $scope.questionNum = $scope.questions.length;
                                 $scope.answer = [];
                                 //deal with the teacher's answer in questions
-                                if($scope.questions)
+                                if($scope.questions.length&&$scope.questions[0].answers)
                                     $scope.questions=$scope.questions.map(function (item) {
                                         console.log('in maping answers',item);
                                         var alphaArr= [];
-                                        if(typeof(item.answers[0])=='boolean'){
+                                        if(item.answers.length&&typeof(item.answers[0])=='boolean'){
                                             for(var i = 0 ; i< item.answers.length;i++){
                                                 if(item.answers[i])alphaArr.push(String.fromCharCode("A".charCodeAt(0)+i));
                                             }
